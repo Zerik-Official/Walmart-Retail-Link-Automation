@@ -13,6 +13,7 @@ DISABLED_LEVELS: Final[Set[str]] = set()
 TAG_LEVEL_RULES: Dict[str, Set[str]] = {
     "LOADER": {"DEBUG"},
     "WINDOW_CONTROLLER": {"DEBUG"},
+    "PX": {"DEBUG"},
 }
 
 LogLevel = Literal["INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG", "CRITICAL"]

@@ -96,6 +96,9 @@ async def perform_login() -> None:
             await _do_full_login(page, manager, creds.username, creds.password)
 
         log("SUCCESS", Tags.MAIN, f"Final URL: {page.url}")
+        log("INFO", Tags.MAIN, "Clearing credentials from memory ...")
+        creds.username = ""
+        creds.password = ""
         log("INFO", Tags.MAIN, "Waiting for further instructions ...")
         input("\n  Press Enter to close the browser and exit ...")
 
