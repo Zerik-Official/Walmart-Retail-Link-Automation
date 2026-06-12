@@ -1,4 +1,6 @@
 import asyncio
+import random
+import math
 from typing import Optional, Dict, Any
 
 from playwright.async_api import Page
@@ -6,11 +8,22 @@ from playwright.async_api import Page
 from utils.logger import log, Tags
 
 
-PX_EVALUATION_TIMEOUT: int = 40_000
+PX_EVALUATION_TIMEOUT: int = 60_000
 PX_RESOLVE_TIMEOUT: int = 120_000
-HOLD_DURATION: float = 6.0
+HOLD_MIN: float = 1.8
+HOLD_MAX: float = 4.5
 
 LOGIN_BTN: str = 'button[data-automation-id="loginBtn"]'
+
+# Señales que indican que el challenge PX está presente en la página
+_PX_CHALLENGE_SIGNALS: list[str] = [
+    "px-captcha",
+    "px-challenge",
+    "px-loader",
+    "custom-iframe",
+    "_pxCaptcha",
+    "perimeterx",
+]
 
 
 async def _wait_for_button_enabled(page: Page, timeout: int = PX_EVALUATION_TIMEOUT) -> bool:
@@ -19,103 +32,157 @@ async def _wait_for_button_enabled(page: Page, timeout: int = PX_EVALUATION_TIME
         try:
             el = await page.query_selector(LOGIN_BTN)
             if el and await el.get_attribute("disabled") is None:
+                await asyncio.sleep(1)
                 return True
         except Exception:
             pass
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
+    return False
+
+
+async def _detect_px_challenge(page: Page) -> bool:
+    """Detecta si PX está presente en la página."""
+    for signal in _PX_CHALLENGE_SIGNALS:
+        found = await page.evaluate(
+            f"document.querySelector('[data-px-captcha]') !== null || "
+            f"document.querySelector('custom-iframe') !== null || "
+            f"document.getElementById('px-captcha') !== null || "
+            f"document.querySelector('meta[content*=\"{signal}\"]') !== null || "
+            f"document.querySelector('iframe[src*=\"{signal}\"]') !== null || "
+            f"(window.___px___ && window.___px___.isCaptcha)"
+        )
+        if found:
+            return True
     return False
 
 
 async def _find_hold_target(page: Page) -> Optional[Dict[str, float]]:
     """
-    Scan the entire DOM (including shadow roots) for the Press & Hold
-    button. Returns {x, y, w, h} of the best candidate, or None.
+    Busca el botón de PX en el DOM, incluyendo Shadow DOM y custom-iframe.
     """
     result: Optional[Dict[str, Any]] = await page.evaluate(
         """
         () => {
-            function getClientRect(el) {
+            const pxKeywords = [
+                'press', 'hold', 'mantener', 'presionado', 'pulsar',
+                'human challenge', 'verificación', 'verification',
+                'challenge', 'appuyer', 'tartsd',
+            ];
+
+            function getRect(el) {
                 const r = el.getBoundingClientRect();
-                return r.width > 0 && r.height > 0
+                return (r.width > 0 && r.height > 0)
                     ? { x: r.x, y: r.y, w: r.width, h: r.height }
                     : null;
             }
 
-            function scan(root) {
+            function scanText(root) {
                 const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
                 let node;
                 while (node = walker.nextNode()) {
                     const text = (node.textContent || '').trim().toLowerCase();
-                    if (text.includes('press') && text.includes('hold')) {
-                        const rect = getClientRect(node);
+                    const matchCount = pxKeywords.filter(k => text.includes(k)).length;
+                    if (matchCount >= 2) {
+                        const rect = getRect(node);
                         if (rect) return rect;
                     }
                 }
                 return null;
             }
 
-            let r = scan(document);
-            if (r) return r;
-
-            const all = document.querySelectorAll('*');
-            for (const el of all) {
-                if (el.shadowRoot) {
-                    r = scan(el.shadowRoot);
+            // 1. Buscar custom-iframe / shadowRoot
+            const customs = document.querySelectorAll('custom-iframe');
+            for (const c of customs) {
+                if (c.shadowRoot) {
+                    const r = scanText(c.shadowRoot);
                     if (r) return r;
                 }
             }
+
+            // 2. Buscar iframes de PX
+            const iframes = document.querySelectorAll('iframe');
+            for (const f of iframes) {
+                try {
+                    const doc = f.contentDocument || f.contentWindow.document;
+                    if (doc) {
+                        const r = scanText(doc);
+                        if (r) return r;
+                    }
+                } catch (_) {}
+            }
+
+            // 3. Buscar en shadow roots de toda la página
+            const all = document.querySelectorAll('*');
+            for (const el of all) {
+                if (el.shadowRoot) {
+                    const r = scanText(el.shadowRoot);
+                    if (r) return r;
+                }
+            }
+
+            // 4. Fallback: buscar el texto en el documento principal
+            const r = scanText(document);
+            if (r) return r;
+
+            // 5. Último recurso: buscar loader de PX
+            const loader = document.querySelector('.px-loader, .px-loader-wrapper, [class*="px-load"]');
+            if (loader) return getRect(loader);
+
             return null;
         }
         """
     )
 
     if result:
-        log("DEBUG", Tags.PX, f"Hold target found at ({result['x']:.0f}, {result['y']:.0f})")
+        log("DEBUG", Tags.PX, f"Hold target found at ({result['x']:.0f}, {result['y']:.0f}) size ({result['w']:.0f}x{result['h']:.0f})")
     return result
 
 
-async def _find_any_visible_text(page: Page) -> None:
-    """Debug helper: log visible text on the page."""
-    texts = await page.evaluate(
-        """
-        () => {
-            const els = document.querySelectorAll('p, span, div, button, h1, h2, h3, h4');
-            const out = [];
-            for (const el of els) {
-                const t = (el.textContent || '').trim();
-                if (t.length > 3 && t.length < 200) {
-                    const r = el.getBoundingClientRect();
-                    if (r.width > 0 && r.height > 0) out.push(t.slice(0, 120));
-                }
-            }
-            return out;
-        }
-        """
-    )
-    if texts:
-        log("DEBUG", Tags.PX, f"Visible text on page ({len(texts)} elements):")
-        for t in texts[:30]:
-            log("DEBUG", Tags.PX, f"  -> {t}")
+async def _micro_movements(page: Page, x: float, y: float, duration: float) -> None:
+    """
+    Simula micro-movimientos del mouse durante el hold,
+    como hace un humano real (nunca está perfectamente quieto).
+    """
+    steps = random.randint(int(duration * 3), int(duration * 6))
+    interval = duration / steps
+    for _ in range(steps):
+        jitter_x = random.uniform(-1.5, 1.5)
+        jitter_y = random.uniform(-1.5, 1.5)
+        await page.mouse.move(x + jitter_x, y + jitter_y, steps=1)
+        await asyncio.sleep(interval * random.uniform(0.6, 1.4))
 
 
 async def _mouse_hold(page: Page, x: float, y: float) -> bool:
-    """Press and hold the mouse at (x, y), then release."""
     try:
-        log("INFO", Tags.PX, f"Holding at ({x:.0f}, {y:.0f}) for {HOLD_DURATION}s ...")
-        await page.mouse.move(x, y)
+        duration = random.uniform(HOLD_MIN, HOLD_MAX)
+        log("INFO", Tags.PX, f"Holding at ({x:.0f}, {y:.0f}) for {duration:.1f}s ...")
+
+        steps = random.randint(5, 12)
+        for i in range(1, steps + 1):
+            cx = x + math.sin(i / steps * math.pi) * random.uniform(-3, 3)
+            cy = y + math.cos(i / steps * math.pi) * random.uniform(-3, 3)
+            await page.mouse.move(cx, cy, steps=2)
+            await asyncio.sleep(0.02 * random.uniform(0.5, 1.5))
+
         await page.mouse.down()
-        await asyncio.sleep(HOLD_DURATION)
+        await asyncio.sleep(0.05)
+
+        await _micro_movements(page, x, y, duration)
+
         await page.mouse.up()
+        await asyncio.sleep(0.1)
+
+        await page.mouse.move(x + random.uniform(10, 40), y + random.uniform(5, 20), steps=5)
 
         await asyncio.sleep(2)
         return await _wait_for_button_enabled(page, timeout=5_000)
+
     except Exception as e:
         log("DEBUG", Tags.PX, f"Mouse hold failed: {e}")
         return False
 
 
 async def _inspect_px_window(page: Page) -> None:
-    """Dump all PX-related properties exposed on window, including object internals."""
     info: Dict[str, Any] = await page.evaluate(
         """
         () => {
@@ -147,13 +214,15 @@ async def _inspect_px_window(page: Page) -> None:
                 }
             }
 
-            const frames = document.querySelectorAll('iframe');
+            const frames = document.querySelectorAll('iframe, custom-iframe');
             const pxFrames = [];
             for (const f of frames) {
                 const src = f.getAttribute('src') || '';
                 const title = f.getAttribute('title') || '';
-                if (src.toLowerCase().includes('px') || title.toLowerCase().includes('px') || title.toLowerCase().includes('captcha')) {
-                    pxFrames.push({ src: src.slice(0, 150), title, visible: f.offsetParent !== null });
+                const id = f.id || '';
+                const cls = f.className || '';
+                if (/px|perimeter|captcha/i.test(src + title + id + cls)) {
+                    pxFrames.push({ tag: f.tagName, src: src.slice(0, 150), title, id, visible: f.offsetParent !== null });
                 }
             }
             out['__pxFrames__'] = pxFrames;
@@ -169,8 +238,30 @@ async def _inspect_px_window(page: Page) -> None:
             log("DEBUG", Tags.PX, f"  window.{key} = {val}")
 
 
+async def _find_any_visible_text(page: Page) -> None:
+    texts = await page.evaluate(
+        """
+        () => {
+            const els = document.querySelectorAll('p, span, div, button, h1, h2, h3, h4');
+            const out = [];
+            for (const el of els) {
+                const t = (el.textContent || '').trim();
+                if (t.length > 3 && t.length < 200) {
+                    const r = el.getBoundingClientRect();
+                    if (r.width > 0 && r.height > 0) out.push(t.slice(0, 120));
+                }
+            }
+            return out;
+        }
+        """
+    )
+    if texts:
+        log("DEBUG", Tags.PX, f"Visible text on page ({len(texts)} elements):")
+        for t in texts[:30]:
+            log("DEBUG", Tags.PX, f"  -> {t}")
+
+
 async def handle_px_challenge(page: Page) -> bool:
-    """Detect and attempt to solve the PX Press & Hold challenge."""
     log("INFO", Tags.PX, "Waiting for PX evaluation ...")
 
     if await _wait_for_button_enabled(page):
@@ -181,27 +272,36 @@ async def handle_px_challenge(page: Page) -> bool:
     await asyncio.sleep(2)
     await _inspect_px_window(page)
 
-    log("INFO", Tags.PX, "Searching DOM for 'Press & Hold' ...")
+    has_px = await _detect_px_challenge(page)
+    log("INFO", Tags.PX, f"PX challenge detected in DOM: {has_px}")
+
+    log("INFO", Tags.PX, "Searching for hold target ...")
     await asyncio.sleep(1)
 
-    target = await _find_hold_target(page)
-    if target:
-        cx = target["x"] + target["w"] / 2
-        cy = target["y"] + target["h"] / 2
-        if await _mouse_hold(page, cx, cy):
-            log("SUCCESS", Tags.PX, "Challenge solved via Press & Hold element.")
-            return True
-    else:
-        log("INFO", Tags.PX, "Press & Hold not found in DOM, dumping page text ...")
-        await _find_any_visible_text(page)
+    for attempt in range(1, 4):
+        log("INFO", Tags.PX, f"Hold attempt {attempt}/3 ...")
 
-        log("INFO", Tags.PX, "Trying viewport center as fallback ...")
-        vp = page.viewport_size
-        if vp and await _mouse_hold(page, vp["width"] / 2, vp["height"] / 2):
-            log("SUCCESS", Tags.PX, "Challenge solved via viewport center hold.")
-            return True
+        target = await _find_hold_target(page)
+        if target:
+            cx = target["x"] + target["w"] / 2
+            cy = target["y"] + target["h"] / 2
+            if await _mouse_hold(page, cx, cy):
+                log("SUCCESS", Tags.PX, "Challenge solved via hold target.")
+                return True
+        else:
+            log("INFO", Tags.PX, "Hold target not found by text, trying viewport center ...")
+            vp = page.viewport_size
+            if vp and await _mouse_hold(page, vp["width"] / 2, vp["height"] / 2):
+                log("SUCCESS", Tags.PX, "Challenge solved via viewport center hold.")
+                return True
 
-    log("WARNING", Tags.PX, "Could not solve PX challenge.")
+        if attempt < 3:
+            wait = random.uniform(3, 8)
+            log("INFO", Tags.PX, f"Retrying in {wait:.0f}s ...")
+            await asyncio.sleep(wait)
+
+    log("WARNING", Tags.PX, "Could not solve PX challenge after 3 attempts.")
+    await _find_any_visible_text(page)
     return False
 
 
