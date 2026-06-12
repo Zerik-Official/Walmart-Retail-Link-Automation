@@ -25,6 +25,7 @@ async def _wait_for_url_contains(page, substring: str, timeout: int = 30_000) ->
 
 
 async def _do_full_login(page, manager, username: str, password: str) -> None:
+    """Fill credentials, submit, handle PX and MFA."""
     log("INFO", Tags.LOGIN, "Filling username ...")
     await manager.fill_field(USERNAME_SEL, username)
 
@@ -59,6 +60,7 @@ async def _do_full_login(page, manager, username: str, password: str) -> None:
 
 
 async def perform_login() -> None:
+    """Orchestrate the full login flow."""
     settings.validate()
 
     creds = resolve_credentials(

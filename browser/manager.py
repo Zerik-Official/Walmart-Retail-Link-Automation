@@ -1,4 +1,5 @@
 import random
+from pathlib import Path
 from typing import Optional, Type, List, Dict, Any
 
 from playwright.async_api import Browser, BrowserContext, Page, Playwright, async_playwright
@@ -53,6 +54,8 @@ try {
 
 
 class BrowserManager:
+    """Manages a Playwright browser instance with stealth protection."""
+
     def __init__(self) -> None:
         self._playwright: Optional[Playwright] = None
         self._browser: Optional[Browser] = None
@@ -63,7 +66,7 @@ class BrowserManager:
 
     @staticmethod
     def _random_viewport() -> dict:
-        """viewport ligeramente variable para evitar patrones fijos."""
+        """Slightly random viewport to avoid fixed pattern detection."""
         w = random.randint(1900, 1940)
         h = random.randint(1040, 1100)
         return {"width": w, "height": h}
@@ -99,6 +102,7 @@ class BrowserManager:
         headless: bool = False,
         user_data_dir: Optional[str] = None,
     ) -> Page:
+        """Launch browser with stealth and return the main page."""
         if user_data_dir:
             return await self._launch_persistent(
                 Path(user_data_dir), chromium_path, headless,
@@ -127,6 +131,7 @@ class BrowserManager:
         chromium_path: Optional[str],
         headless: bool,
     ) -> Page:
+        """Launch a persistent browser context (full profile persistence)."""
         self._playwright = await async_playwright().start()
         vp = self._random_viewport()
 
@@ -147,27 +152,32 @@ class BrowserManager:
         return self._page
 
     async def navigate(self, url: str, timeout: int = PAGE_LOAD_TIMEOUT) -> None:
+        """Navigate the main page to the given URL."""
         if not self._page:
             raise RuntimeError("Browser not launched. Call launch() first.")
         await self._page.goto(url, timeout=timeout, wait_until="domcontentloaded")
 
     @staticmethod
     def _resolve_selector(selector: str) -> str:
+        """Prefix with xpath= if the selector looks like an XPath expression."""
         if selector.startswith(("/", "./", "(")):
             return f"xpath={selector}"
         return selector
 
     async def fill_field(self, selector: str, value: str) -> None:
+        """Fill a form field identified by a CSS or XPath selector."""
         if not self._page:
             raise RuntimeError("Browser not launched.")
         await self._page.fill(self._resolve_selector(selector), value)
 
     async def click(self, selector: str, force: bool = False) -> None:
+        """Click an element identified by a CSS or XPath selector."""
         if not self._page:
             raise RuntimeError("Browser not launched.")
         await self._page.click(self._resolve_selector(selector), force=force)
 
     async def close(self) -> None:
+        """Close all browser resources gracefully."""
         errors: list[str] = []
 
         if self._page:
@@ -218,11 +228,13 @@ class BrowserManager:
             )
 
     async def get_cookies(self) -> List[Dict[str, Any]]:
+        """Export all cookies from the current browser context."""
         if not self._context:
             raise RuntimeError("Browser not launched.")
         return await self._context.cookies()
 
     async def add_cookies(self, cookies: List[Dict[str, Any]]) -> None:
+        """Import cookies into the current browser context."""
         if not self._context:
             raise RuntimeError("Browser not launched.")
         await self._context.add_cookies(cookies)

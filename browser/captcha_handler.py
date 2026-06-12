@@ -15,7 +15,7 @@ HOLD_MAX: float = 4.5
 
 LOGIN_BTN: str = 'button[data-automation-id="loginBtn"]'
 
-# Señales que indican que el challenge PX está presente en la página
+# Signals that indicate a PX challenge is present on the page
 _PX_CHALLENGE_SIGNALS: list[str] = [
     "px-captcha",
     "px-challenge",
@@ -41,7 +41,7 @@ async def _wait_for_button_enabled(page: Page, timeout: int = PX_EVALUATION_TIME
 
 
 async def _detect_px_challenge(page: Page) -> bool:
-    """Detecta si PX está presente en la página."""
+    """Check whether PX is present on the page."""
     for signal in _PX_CHALLENGE_SIGNALS:
         found = await page.evaluate(
             f"document.querySelector('[data-px-captcha]') !== null || "
@@ -57,9 +57,7 @@ async def _detect_px_challenge(page: Page) -> bool:
 
 
 async def _find_hold_target(page: Page) -> Optional[Dict[str, float]]:
-    """
-    Busca el botón de PX en el DOM, incluyendo Shadow DOM y custom-iframe.
-    """
+    """Search the DOM (including Shadow DOM and custom-iframes) for the PX hold button."""
     result: Optional[Dict[str, Any]] = await page.evaluate(
         """
         () => {
@@ -90,7 +88,7 @@ async def _find_hold_target(page: Page) -> Optional[Dict[str, float]]:
                 return null;
             }
 
-            // 1. Buscar custom-iframe / shadowRoot
+            // 1. Look into custom-iframes and their shadow roots
             const customs = document.querySelectorAll('custom-iframe');
             for (const c of customs) {
                 if (c.shadowRoot) {
@@ -99,7 +97,7 @@ async def _find_hold_target(page: Page) -> Optional[Dict[str, float]]:
                 }
             }
 
-            // 2. Buscar iframes de PX
+            // 2. Look into PX iframes
             const iframes = document.querySelectorAll('iframe');
             for (const f of iframes) {
                 try {
@@ -111,7 +109,7 @@ async def _find_hold_target(page: Page) -> Optional[Dict[str, float]]:
                 } catch (_) {}
             }
 
-            // 3. Buscar en shadow roots de toda la página
+            // 3. Scan shadow roots across the whole page
             const all = document.querySelectorAll('*');
             for (const el of all) {
                 if (el.shadowRoot) {
@@ -120,11 +118,11 @@ async def _find_hold_target(page: Page) -> Optional[Dict[str, float]]:
                 }
             }
 
-            // 4. Fallback: buscar el texto en el documento principal
+            // 4. Fallback: scan text in the main document
             const r = scanText(document);
             if (r) return r;
 
-            // 5. Último recurso: buscar loader de PX
+            // 5. Last resort: look for a PX loader element
             const loader = document.querySelector('.px-loader, .px-loader-wrapper, [class*="px-load"]');
             if (loader) return getRect(loader);
 
@@ -139,10 +137,7 @@ async def _find_hold_target(page: Page) -> Optional[Dict[str, float]]:
 
 
 async def _micro_movements(page: Page, x: float, y: float, duration: float) -> None:
-    """
-    Simula micro-movimientos del mouse durante el hold,
-    como hace un humano real (nunca está perfectamente quieto).
-    """
+    """Simulate tiny mouse jitter during hold, mimicking real human behavior."""
     steps = random.randint(int(duration * 3), int(duration * 6))
     interval = duration / steps
     for _ in range(steps):
@@ -153,6 +148,7 @@ async def _micro_movements(page: Page, x: float, y: float, duration: float) -> N
 
 
 async def _mouse_hold(page: Page, x: float, y: float) -> bool:
+    """Press and hold with realistic micro-movements, then release."""
     try:
         duration = random.uniform(HOLD_MIN, HOLD_MAX)
         log("INFO", Tags.PX, f"Holding at ({x:.0f}, {y:.0f}) for {duration:.1f}s ...")
@@ -183,6 +179,7 @@ async def _mouse_hold(page: Page, x: float, y: float) -> bool:
 
 
 async def _inspect_px_window(page: Page) -> None:
+    """Dump all PX-related properties exposed on window."""
     info: Dict[str, Any] = await page.evaluate(
         """
         () => {
@@ -239,6 +236,7 @@ async def _inspect_px_window(page: Page) -> None:
 
 
 async def _find_any_visible_text(page: Page) -> None:
+    """Debug helper: log visible text on the page."""
     texts = await page.evaluate(
         """
         () => {
@@ -262,6 +260,7 @@ async def _find_any_visible_text(page: Page) -> None:
 
 
 async def handle_px_challenge(page: Page) -> bool:
+    """Detect and attempt to solve the PX Press & Hold challenge."""
     log("INFO", Tags.PX, "Waiting for PX evaluation ...")
 
     if await _wait_for_button_enabled(page):
