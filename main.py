@@ -56,17 +56,27 @@ async def perform_login() -> None:
     page = await manager.launch(
         chromium_path=settings.chromium_path,
         headless=settings.headless,
+        user_data_dir=settings.user_data_dir,
     )
 
     try:
         cookies_loaded = await load_cookies(manager)
 
+        log("INFO", Tags.LOGIN, "Warming up at youtube.com ...")
+        await manager.navigate("https://www.youtube.com")
+        await page.wait_for_timeout(4000)
+
         log("INFO", Tags.LOGIN, f"Navigating to {settings.login_url} ...")
         await manager.navigate(settings.login_url)
-        await page.wait_for_timeout(3000)
 
-        if cookies_loaded and "/login" not in page.url:
-            log("SUCCESS", Tags.LOGIN, "Cookies valid, already authenticated.")
+        redirected = await _wait_for_url_contains(page, "/mfa", timeout=8_000)
+        if not redirected:
+            redirected = await _wait_for_url_contains(
+                page, "supplier.wal-mart.com", timeout=5_000,
+            )
+
+        if redirected:
+            log("SUCCESS", Tags.LOGIN, "Session valid, already past login.")
             if "/mfa" in page.url:
                 await handle_mfa(page)
                 await page.wait_for_timeout(3000)
