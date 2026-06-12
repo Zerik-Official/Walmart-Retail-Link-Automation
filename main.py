@@ -25,19 +25,28 @@ async def _wait_for_url_contains(page, substring: str, timeout: int = 30_000) ->
 
 
 async def _do_full_login(page, manager, username: str, password: str) -> None:
-    """Fill credentials, submit, handle PX and MFA."""
     log("INFO", Tags.LOGIN, "Filling username ...")
     await manager.fill_field(USERNAME_SEL, username)
 
     log("INFO", Tags.LOGIN, "Filling password ...")
     await manager.fill_field(PASSWORD_SEL, password)
 
-    log("INFO", Tags.LOGIN, "Clicking login button ...")
+    log("INFO", Tags.LOGIN, "Clicking login button (triggers PX) ...")
     await manager.click(LOGIN_BTN, force=True)
 
     log("INFO", Tags.PX, "Checking for PerimeterX challenge ...")
-    await handle_px_challenge(page)
+    px_solved = await handle_px_challenge(page)
     await wait_for_px_challenge_resolved(page)
+
+    if not px_solved:
+        log("WARNING", Tags.LOGIN, "PX challenge may not be solved, retrying click anyway ...")
+
+    log("INFO", Tags.LOGIN, "Clicking login button again (PX token ready) ...")
+    try:
+        await page.click(LOGIN_BTN, timeout=10_000)
+    except Exception:
+        log("INFO", Tags.LOGIN, "Normal click failed, using force=True ...")
+        await manager.click(LOGIN_BTN, force=True)
 
     log("INFO", Tags.LOGIN, "Waiting for post-login redirect ...")
     on_mfa = await _wait_for_url_contains(page, "/mfa", timeout=40_000)
@@ -50,7 +59,6 @@ async def _do_full_login(page, manager, username: str, password: str) -> None:
 
 
 async def perform_login() -> None:
-    """Orchestrate the full login flow."""
     settings.validate()
 
     creds = resolve_credentials(
