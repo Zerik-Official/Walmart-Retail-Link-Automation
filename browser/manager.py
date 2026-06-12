@@ -1,4 +1,5 @@
 from typing import Optional, Type, List, Dict, Any
+from pathlib import Path
 
 from playwright.async_api import Browser, BrowserContext, Page, Playwright, async_playwright
 from playwright_stealth import Stealth
@@ -22,8 +23,18 @@ class BrowserManager:
         self,
         chromium_path: Optional[str] = None,
         headless: bool = False,
+        user_data_dir: Optional[str] = None,
     ) -> Page:
-        """Launch browser with stealth and return the main page."""
+        """Launch browser with stealth and return the main page.
+
+        If user_data_dir is provided, uses a persistent context so that
+        cookies, localStorage, IndexedDB, etc. survive across runs.
+        """
+        if user_data_dir:
+            return await self._launch_persistent(
+                Path(user_data_dir), chromium_path, headless,
+            )
+
         self._playwright_cm = self._stealth.use_async(async_playwright())
         self._playwright = await self._playwright_cm.__aenter__()
 
@@ -35,13 +46,36 @@ class BrowserManager:
             launch_args["executable_path"] = chromium_path
 
         self._browser = await self._playwright.chromium.launch(**launch_args)
-
         self._context = await self._browser.new_context(
             viewport={"width": 1920, "height": 1080},
             screen={"width": 1920, "height": 1080},
         )
-
         self._page = await self._context.new_page()
+        return self._page
+
+    async def _launch_persistent(
+        self,
+        data_dir: Path,
+        chromium_path: Optional[str],
+        headless: bool,
+    ) -> Page:
+        """Launch a persistent browser context (full profile persistence)."""
+        self._playwright = await async_playwright().start()
+
+        self._context = await self._playwright.chromium.launch_persistent_context(
+            str(data_dir),
+            headless=headless,
+            args=["--start-maximized"],
+            executable_path=chromium_path,
+            viewport={"width": 1920, "height": 1080},
+            screen={"width": 1920, "height": 1080},
+        )
+
+        pages = self._context.pages
+        self._page = pages[0] if pages else await self._context.new_page()
+
+        await self._stealth.apply_stealth_async(self._context)
+
         return self._page
 
     async def navigate(self, url: str, timeout: int = PAGE_LOAD_TIMEOUT) -> None:
@@ -104,6 +138,14 @@ class BrowserManager:
                 errors.append(f"playwright: {e}")
             finally:
                 self._playwright_cm = None
+                self._playwright = None
+
+        elif self._playwright:
+            try:
+                await self._playwright.stop()
+            except Exception as e:
+                errors.append(f"playwright stop: {e}")
+            finally:
                 self._playwright = None
 
         if errors:
