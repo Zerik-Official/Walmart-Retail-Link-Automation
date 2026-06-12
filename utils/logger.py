@@ -25,6 +25,7 @@ class Tags(StrEnum):
     PX = "PX"
     MFA = "MFA"
     LOGIN = "LOGIN"
+    LASTPASS = "LASTPASS"
     SYSTEM = "SYSTEM"
 
 
