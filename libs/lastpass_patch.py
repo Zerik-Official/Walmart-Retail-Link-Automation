@@ -1,7 +1,10 @@
-"""Patched wrapper around lastpass-python (v0.3.2).
+"""
+Patched wrapper around lastpass-python (v0.3.2).
 
 Monkey-patches outdated blob parsing (PRIK + ACCT url format)
 and exposes a typed, easy-to-use interface.
+
+patch by https://github.com/Zerik-Official ay mi gatito meow meow
 """
 
 from __future__ import annotations
