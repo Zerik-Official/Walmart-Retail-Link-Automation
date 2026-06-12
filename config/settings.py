@@ -19,6 +19,7 @@ class Settings:
     login_url: str = field(
         default="https://retaillink.login.wal-mart.com/login"
     )
+    user_data_dir: Optional[str] = field(default=None)
 
     @classmethod
     def from_env(cls, env_path: Path = ENV_FILE) -> "Settings":
@@ -33,6 +34,7 @@ class Settings:
                 "LOGIN_URL",
                 "https://retaillink.login.wal-mart.com/login",
             ),
+            user_data_dir=os.getenv("USER_DATA_DIR", None),
         )
 
     def validate(self) -> None:
