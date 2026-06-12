@@ -148,8 +148,11 @@ class BrowserManager:
             finally:
                 self._playwright = None
 
-        if errors:
-            raise RuntimeError(f"Errors during cleanup: {'; '.join(errors)}")
+        real_errors = [e for e in errors if "has been closed" not in e]
+        if real_errors:
+            raise RuntimeError(
+                f"Errors during cleanup: {'; '.join(real_errors)}"
+            )
 
     async def get_cookies(self) -> List[Dict[str, Any]]:
         """Export all cookies from the current browser context."""
