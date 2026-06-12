@@ -36,6 +36,7 @@ Automated login for [Walmart Retail Link](https://retaillink.login.wal-mart.com/
 - **MFA support** — handles Symantec VIP two-factor authentication flow
 - **Cookie persistence** — saves session cookies after login to skip re-authentication on subsequent runs
 - **Colorised logging** — centralised logger with tags and severity levels via `colorama`
+- **LastPass integration** — fetch Walmart credentials directly from your LastPass vault interactively
 
 ## Prerequisites
 
@@ -97,7 +98,12 @@ Automated login for [Walmart Retail Link](https://retaillink.login.wal-mart.com/
    HEADLESS=false
    LOGIN_URL=https://retaillink.login.wal-mart.com/login
    USER_DATA_DIR=chrome_profile
+   USE_LASTPASS=false
+   LASTPASS_EMAIL=
+   LASTPASS_PASSWORD=
    ```
+
+   > If `USE_LASTPASS=true`, the script will connect to your LastPass vault and let you interactively choose which account's credentials to use, instead of reading `WALMART_USERNAME` / `WALMART_PASSWORD` from `.env`.
 
 ## Usage
 
@@ -111,13 +117,14 @@ The script will:
 
 1. Show an ASCII banner with version info
 2. Load saved cookies from `cookies/cookies.json` if available (skips login if still valid)
-3. Launch a Chromium browser with stealth patches
-4. Navigate to the Walmart Retail Link login page
-5. Fill in your credentials and click **LOG IN**
-6. Detect and attempt to bypass any **PerimeterX** challenge
-7. If prompted, complete the **Symantec VIP MFA** flow by entering the OTP code from your app
-8. Save session cookies for future runs
-9. Keep the browser open until you press **Enter**
+3. If `USE_LASTPASS=true`, connect to the LastPass vault and let you pick an account interactively
+4. Launch a Chromium browser with stealth patches
+5. Navigate to the Walmart Retail Link login page
+6. Fill in your credentials (from `.env` or LastPass) and click **LOG IN**
+7. Detect and attempt to bypass any **PerimeterX** challenge
+8. If prompted, complete the **Symantec VIP MFA** flow by entering the OTP code from your app
+9. Save session cookies for future runs
+10. Keep the browser open until you press **Enter**
 
 ## Project Structure
 
@@ -136,6 +143,10 @@ Walmart-Retail-Link-Automation/
 │   ├── __init__.py
 │   ├── info.py              # ASCII colour banner
 │   └── logger.py            # Centralised logger with tags & levels
+├── libs/
+│   ├── __init__.py
+│   ├── credential_resolver.py  # Resolves credentials from .env or LastPass vault
+│   └── lastpass_patch.py       # Patched lastpass-python client with typed interface
 ├── cookies/                 # Persistent session cookies (gitignored)
 ├── .github/
 │   └── example.png          # Repository preview image
@@ -152,12 +163,31 @@ Walmart-Retail-Link-Automation/
 
 | Variable            | Required | Default                                                              | Description                |
 | ------------------- | -------- | -------------------------------------------------------------------- | -------------------------- |
-| `WALMART_USERNAME`  | Yes      | —                                                                    | Retail Link username       |
-| `WALMART_PASSWORD`  | Yes      | —                                                                    | Retail Link password       |
+| `WALMART_USERNAME`  | Yes\*    | —                                                                    | Retail Link username       |
+| `WALMART_PASSWORD`  | Yes\*    | —                                                                    | Retail Link password       |
 | `CHROMIUM_PATH`     | No       | Playwright's bundled Chromium                                        | Custom browser executable  |
 | `HEADLESS`          | No       | `false`                                                              | Run browser in headless mode |
-| `LOGIN_URL`       | No       | `https://retaillink.login.wal-mart.com/login`                        | Login page URL             |
-| `USER_DATA_DIR`   | No       | —                                                                     | Path to persistent Chrome profile (full state preservation) |
+| `LOGIN_URL`         | No       | `https://retaillink.login.wal-mart.com/login`                        | Login page URL             |
+| `USER_DATA_DIR`     | No       | —                                                                    | Path to persistent Chrome profile |
+| `USE_LASTPASS`      | No       | `false`                                                              | Fetch credentials from LastPass vault |
+| `LASTPASS_EMAIL`    | Yes\*    | —                                                                    | LastPass account email     |
+| `LASTPASS_PASSWORD` | Yes\*    | —                                                                    | LastPass master password   |
+
+> \* Required only when `USE_LASTPASS=false` for WALMART\_USERNAME/PASSWORD, or when `USE_LASTPASS=true` for LASTPASS\_EMAIL/PASSWORD.
+
+## LastPass Integration
+
+When `USE_LASTPASS=true`, the script connects to your LastPass vault using `lastpass-python` (with monkey-patches for the current blob format) and shows a numbered list of all available accounts:
+
+```
+  [LASTPASS]  Found 12 account(s)
+     1. Walmart Retail Link               john.doe@email.com         https://retaillink.login.wal-mart.com
+     2. GitHub                            john.doe@email.com         https://github.com
+     ...
+  Choose account [1-12]:
+```
+
+Pick the account whose credentials you want to use, and those will be used for the Walmart login flow. The account listing is displayed directly via `print()` for clean tabular formatting; all other vault operations use the centralised logger.
 
 ## License
 
