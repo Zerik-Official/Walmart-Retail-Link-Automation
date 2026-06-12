@@ -96,6 +96,7 @@ Automated login for [Walmart Retail Link](https://retaillink.login.wal-mart.com/
    CHROMIUM_PATH=
    HEADLESS=false
    LOGIN_URL=https://retaillink.login.wal-mart.com/login
+   USER_DATA_DIR=chrome_profile
    ```
 
 ## Usage
