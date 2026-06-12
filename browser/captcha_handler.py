@@ -114,6 +114,61 @@ async def _mouse_hold(page: Page, x: float, y: float) -> bool:
         return False
 
 
+async def _inspect_px_window(page: Page) -> None:
+    """Dump all PX-related properties exposed on window, including object internals."""
+    info: Dict[str, Any] = await page.evaluate(
+        """
+        () => {
+            const out = {};
+            const keywords = ['px', 'perimeterx', 'captcha', '_px', 'PX', '_pxCaptcha'];
+
+            function describe(val) {
+                if (typeof val === 'function') return `fn(${val.length} args)`;
+                if (typeof val === 'object' && val !== null) {
+                    const keys = Object.keys(val);
+                    const details = {};
+                    for (const k of keys.slice(0, 10)) {
+                        const v = val[k];
+                        details[k] = typeof v === 'function'
+                            ? `fn(${v.length} args)`
+                            : typeof v === 'object' && v !== null
+                                ? `obj(${Object.keys(v).length} keys)`
+                                : String(v).slice(0, 100);
+                    }
+                    return `obj(${keys.length} keys): ${JSON.stringify(details)}`;
+                }
+                return String(val).slice(0, 200);
+            }
+
+            for (const key of Object.getOwnPropertyNames(window)) {
+                const lower = key.toLowerCase();
+                if (keywords.some(k => lower.includes(k.toLowerCase()))) {
+                    out[key] = describe(window[key]);
+                }
+            }
+
+            const frames = document.querySelectorAll('iframe');
+            const pxFrames = [];
+            for (const f of frames) {
+                const src = f.getAttribute('src') || '';
+                const title = f.getAttribute('title') || '';
+                if (src.toLowerCase().includes('px') || title.toLowerCase().includes('px') || title.toLowerCase().includes('captcha')) {
+                    pxFrames.push({ src: src.slice(0, 150), title, visible: f.offsetParent !== null });
+                }
+            }
+            out['__pxFrames__'] = pxFrames;
+
+            return out;
+        }
+        """
+    )
+    for key, val in info.items():
+        if isinstance(val, str) and len(val) > 300:
+            log("DEBUG", Tags.PX, f"  window.{key} = {val[:300]}...")
+        else:
+            log("DEBUG", Tags.PX, f"  window.{key} = {val}")
+
+
 async def handle_px_challenge(page: Page) -> bool:
     """Detect and attempt to solve the PX Press & Hold challenge."""
     log("INFO", Tags.PX, "Waiting for PX evaluation ...")
@@ -122,8 +177,12 @@ async def handle_px_challenge(page: Page) -> bool:
         log("SUCCESS", Tags.PX, "PX passed without challenge.")
         return True
 
-    log("INFO", Tags.PX, "Button still disabled, searching DOM for 'Press & Hold' ...")
-    await asyncio.sleep(3)
+    log("INFO", Tags.PX, "Button still disabled, inspecting PX internals ...")
+    await asyncio.sleep(2)
+    await _inspect_px_window(page)
+
+    log("INFO", Tags.PX, "Searching DOM for 'Press & Hold' ...")
+    await asyncio.sleep(1)
 
     target = await _find_hold_target(page)
     if target:
