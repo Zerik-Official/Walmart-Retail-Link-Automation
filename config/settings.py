@@ -32,13 +32,13 @@ class Settings:
         return cls(
             walmart_username=os.getenv("WALMART_USERNAME", ""),
             walmart_password=os.getenv("WALMART_PASSWORD", ""),
-            chromium_path=os.getenv("CHROMIUM_PATH", None),
+            chromium_path=os.getenv("CHROMIUM_PATH") or None,
             headless=os.getenv("HEADLESS", "false").lower() == "true",
             login_url=os.getenv(
                 "LOGIN_URL",
                 "https://retaillink.login.wal-mart.com/login",
             ),
-            user_data_dir=os.getenv("USER_DATA_DIR", None),
+            user_data_dir=os.getenv("USER_DATA_DIR") or None,
             use_lastpass=os.getenv("USE_LASTPASS", "false").lower() == "true",
             lastpass_email=os.getenv("LASTPASS_EMAIL", ""),
             lastpass_password=os.getenv("LASTPASS_PASSWORD", ""),
