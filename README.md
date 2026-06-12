@@ -155,7 +155,8 @@ Walmart-Retail-Link-Automation/
 | `WALMART_PASSWORD`  | Yes      | —                                                                    | Retail Link password       |
 | `CHROMIUM_PATH`     | No       | Playwright's bundled Chromium                                        | Custom browser executable  |
 | `HEADLESS`          | No       | `false`                                                              | Run browser in headless mode |
-| `LOGIN_URL`         | No       | `https://retaillink.login.wal-mart.com/login`                        | Login page URL             |
+| `LOGIN_URL`       | No       | `https://retaillink.login.wal-mart.com/login`                        | Login page URL             |
+| `USER_DATA_DIR`   | No       | —                                                                     | Path to persistent Chrome profile (full state preservation) |
 
 ## License
 
