@@ -1,0 +1,4 @@
+playwright
+playwright_stealth
+python-dotenv
+colorama
