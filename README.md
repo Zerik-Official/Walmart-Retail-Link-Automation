@@ -111,7 +111,10 @@ Automated login for [Walmart Retail Link](https://retaillink.login.wal-mart.com/
 Run the script:
 
 ```bash
+# Windows
 python main.py
+# Linux / macOS
+python3 main.py
 ```
 
 The script will:
