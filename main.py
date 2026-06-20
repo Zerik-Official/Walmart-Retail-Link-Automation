@@ -39,6 +39,13 @@ async def _do_full_login(page, manager, username: str, password: str) -> None:
     px_solved = await handle_px_challenge(page)
     await wait_for_px_challenge_resolved(page)
 
+    if "/mfa" in page.url:
+        log("INFO", Tags.LOGIN, "Already on MFA page, skipping login re-click.")
+        await handle_mfa(page)
+        await page.wait_for_timeout(3000)
+        await save_cookies(manager)
+        return
+
     if not px_solved:
         log("WARNING", Tags.LOGIN, "PX challenge may not be solved, retrying click anyway ...")
 

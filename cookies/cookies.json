@@ -1,0 +1,242 @@
+[
+  {
+    "name": "VISITOR_INFO1_LIVE",
+    "value": "WZJQ4hyx2OU",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1796841588.014663,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None",
+    "partitionKey": "https://youtube.com",
+    "_crHasCrossSiteAncestor": false
+  },
+  {
+    "name": "VISITOR_PRIVACY_METADATA",
+    "value": "CgJDTxIEGgAgSQ%3D%3D",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1796841588.014773,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None",
+    "partitionKey": "https://youtube.com",
+    "_crHasCrossSiteAncestor": false
+  },
+  {
+    "name": "__Secure-YNID",
+    "value": "19.YT=mzQ7mfo_U8cWIyTyacOO3Nd5x_3d7cTISekHPyye7y3pnxtgXO4VIylszg6IRRy8kEnTIn6gBa4qzSbpsbjKK7f8LiIKBGyyiHST5eUO80J4dh5BUmjul_MX1P5xHFdrZ3G4KRZkKwGym9sAKm-4Cm5L4GczIoo8LclyRhC-UsRdesbn0wKTxWnIV87Tm48nbx4aCn-xzwd15Yf9fRaOG6wKpdgpTbKaYFArSW5c_svSBbJPDR0f0DhYIlOYB33uQDvoUEJ9wSsLNtxE2LCnPqI4KRvJoIdQNAE1lxfTDBI07V9HEptBZOtkG7yDDXU9-ImaBvkMbUzMiGeJWsSRbA",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1796836583.216868,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None",
+    "partitionKey": "https://youtube.com",
+    "_crHasCrossSiteAncestor": false
+  },
+  {
+    "name": "__Secure-ROLLOUT_TOKEN",
+    "value": "CKSwwNjbmJ2TAhDv28SWmoKVAxj8msKXmoKVAw%3D%3D",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1796836585.217415,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None",
+    "partitionKey": "https://youtube.com",
+    "_crHasCrossSiteAncestor": false
+  },
+  {
+    "name": "vtc",
+    "value": "VUftnTDnZ6W20svUrdYZRo",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": 1815849866.437585,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_pxvid",
+    "value": "948f7e8c-6682-11f1-8bc3-47944f799de6",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": 1812820645.017288,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "NID",
+    "value": "532=I4T_1ro1qMvZyr9P6iPT6yfUA8tLyucsMme3S_v7llZ5Bi-hiyN0MIXg1mIh1QV8JTp6-aVIWjNg7r7-TWthH-FiptLb-ixcf1lQUmadw5TnGjCpSh4Fq_WVZJqWGyd46geM9Cms61gs0ozd8UgZgs0kfrwy8_K3_qpFnX4Wjbhnrdm0sumhNgPY6KeV4CqUJK1q9A",
+    "domain": ".google.com.co",
+    "path": "/",
+    "expires": 1797095785.6864,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "YSC",
+    "value": "WjLly0V0d80",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None",
+    "partitionKey": "https://youtube.com",
+    "_crHasCrossSiteAncestor": false
+  },
+  {
+    "name": "pxcts",
+    "value": "948f96a8-6682-11f1-8bc4-8f27e536793b",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "GPS",
+    "value": "1",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1781291388.014455,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "NID",
+    "value": "532=GUP2cc3ZzFgqeIOHzuaXUU3sBYo6S_Yv59fryqNb3Z0NQC8EVmJx9TzVPWwgzGngkbsgCe9BYvWqEOJUrui-93E5CVtkR53pot9zwl8SanoasVsjzhdewivoYCHsKyn4AwApmzyBbtCXsP5wWvv08_glcFVK9SH63RactkWPaCnaGkxeJt3AoZMVvV2XX4kSSiZKiw",
+    "domain": ".google.com",
+    "path": "/",
+    "expires": 1797095785.077641,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "bstc",
+    "value": "Q4favX-TWdbtInt9BCe48w",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": 1781291666.437761,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "PREF",
+    "value": "tz=America.Bogota&f6=40000000",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1815849594.62076,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_refreshAuth",
+    "value": "MDgyNTUyMDE4RclcYeX92h/GREB+nZupZI6sS/Hax4QNZlk2s9dEXwC5rL43tyXJLGqtnI0U0BzwZJ1egk651E5loTJ9MNI6C83OTPYnY2m46AtXUn9pLVVnY3NxIKDGXmXMBGWmzoiw0I1ymaQhLZBMXNzHJgS9WD1h3vOr/3MwZ5I0RFe53hWNtrj1fFeMtzbSLeG2m3gmNikCjxajtU6gN7xJLsUfUav6LaHjkktKUgiQRMe+03q1rRdA9Ad2p6qSPuEhFHr9E1keHkALVzuj60QSaZfkgfugDcXnh1v8az7XQpnM8lM936zYdC+EKfTahjvRPdI1FBCfm7/MxiZ3G8JPPXCJBQxPy5s2mZFbARuLeYF2XaQfMp5PgsoS5tu+7E3m+EWqphBICvoK4SYniF455hfwRrUjN1Tz1dJm4U5qVFj0m3UPMULqMOUezb1geQKXLSugqeIZz0iT7DkcGthFRjL4e2ie34+q0YbFkMFRZD+YisI=",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "RLSESSION",
+    "value": "",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "nse",
+    "value": "true",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "fcnRealm",
+    "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbUlkIjoia3JfdGVtcF9yZWFsbSIsInByaW5jaXBhbElkIjoiNzk0NTFkY2MtYjIxZi00NDQ0LTliOTQtYmMwODZiMjE5ZjJmIiwiY2xpZW50VHlwZSI6InN1cHBsaWVyIiwicGFydG5lclJvbGUiOmZhbHNlLCJpYXQiOjE3ODEyODk2MTB9.Mjv8akPe4-5sAxqD8Wj9_WsKKBtgCT_l4RVRB0to2te9-Y-fhR82chtog7A6cGOGFe6UHw7YqFlinR-1NPHm5SqnoMLyjzLLAQErFEtLH7dkNPqhbdDIGsYVeH9VOB33cueL9U2_hp4DjE9dj9SoN5qIC28JJjsFU9KvvlyigpwHLQDAe9-Fm2NJG8efXZUjdC4B0arpPpO-VVo_Wg4r8bQqbOsldoEyZUbIAK3uiYfQJRT7-m1A3t-A8xV88qQ9_1OEk13ga8oxD9jgcWQAxHSrNGO8iPa8UcXA5ea6M7dvTU-xEhRTArRQk9VVyjoew_l9ypHGrfgXrNO2LqWBJg",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_auth",
+    "value": "MTAyOTYyMDE4fuxGw8Udn+HdfiPnTGmieY/XweY5d3/VMwR7Oc3TOywLF6cebVubiH694JHLEF7d8o00KmwCVQu/c8458ugIxwAGkZskAPvL3lKWioSTvD3ZfIiMFfPptWDD8+uOkReJUc6yYHQb342ecd83YmfmbbErK2cdJsoKtPzknJfq2Qa5AnIMQNpAGSUTWJzjNmNLyoqMfEe9mlLzQHCv3rTCeayLifW5wXZB/ajxg0epuuf52ZQg0q1fJomJb19zPWF7fosCDyXipUoFNhZv9lKxRJh8BNuNrgfH1rVnqJWZCkcjCSJE/nH77YliUFd0p2BO0LHH955bUC1hLXP0pb/DNbFNMbQm8EdIZVJNDqLJqkTdkD/bPY0zCDLbbKhXGD6SE985BQX4br0B6pB4C9QZQkMs9THAmtytF0j1XpWFKKA=",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "mfaToken",
+    "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbmFibGVkIjp0cnVlLCJieXBhc3MiOmZhbHNlLCJsb2dpbklkIjoiZ3V6bWFuZ3V6bWFuMjkwMUBnbWFpbC5jb20iLCJleHBpcmVzSW4iOjQzMjAwLCJpYXQiOjE3ODEyODk4NjV9.O-goQrd3fkk_wQScfDZycNoqLZNZQtX-tM5BXuenNDN4zQkG9-PakICeWoGvIS5KrclzqZGRb6d1bFnBuBHNxWjGJpjJIhF6VV8LJFJTxfNY5AyB82UknOzr8hhrVsC6MuFFBloEvZqYE7y25OMf-v_jYgkiW7cyzG7cWW_LuoeepJJEgZQLs90fvL48-vGNotW_OQDM70VuhUDaoQN_7yw5dsJk8Xqog_JidJNlxSRvSSzauA7AOzhYPRMHpg4pikxQrjHdC9Jy_MfkYe4Wj7c7tkVHqEWmh4EzFHsQCIE3V68BSWnR8zR-d1JAciMjVS6vRbz1R3zLr1t6Yl6VQw",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "TS018df4d0",
+    "value": "01926078ed163db931af652448b7067f6212562e30849c6f0054ed3e772e1f9f905b317f8fbc222325c20ad6d5b927c380a0df7acf",
+    "domain": "retaillink.login.wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "TS012db826",
+    "value": "01926078ed163db931af652448b7067f6212562e30849c6f0054ed3e772e1f9f905b317f8fbc222325c20ad6d5b927c380a0df7acf",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "TSe9e85550027",
+    "value": "08d8450f6fab200021e361e652068d60b07b774fdcce78769ff6f2fe9efcf5ea4d3a7f3dc1bf55dc083108a182113000607fe46c2e25168a2954a015977d72ca464ce811faaa1957244ad77643a8dceafa1a6515b370f601a5aa732ad36d4297",
+    "domain": "retaillink.login.wal-mart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_px3",
+    "value": "5122ad87c046e7b8e0dff802f23259d8803b2179c0c4e6bded9f49f548b4465d:t4cs70rTw1HytriupN0Y2yqf2jjOcimNberFdo2m2m6dQBRj+TcDSaYKzf71mXFmsqO32Sgtt/3GTjwj3nbVjQ==:1000:IioOQRxsPLWV/5CrXLsvUWUfkCNKd2Xwy0I/8ncCV2VTz83EFN0DjiHnf0XRM+hDnNMcsn0uAP5eTuwjUpoTu+ZbDt3/wNhfCm2jd8BvwBJBnMkeBRZp4rSMeNeq2SFTICbzQZTZ8b1Fq0/A5mx0ApzvtjnMNx2ulDO3tvTwXB7h67dYF58Zfc2TNEwMzWskL6adGb529G17D5z8tx0eqVtF/Yf9RXCTHECWow1GKT3ymC8EJc7giFuRKsaBmRZnO6hM2gsdnpRP0GasUqNobke5BJgUB+T9EN2uePIPkVMNsRfDcpud4dou4dOLBbVZgjAUDkQVAzQbd4n117idqF05J9Pw9ssAOgCLUvPtwhq8qKXhMx8DNpD1+YUzbvLxWDEFeG+dJK0K5UwieRSZyGOyU/4/WdQu/UqxzhZxsUtyOCZckRWEP6NeuwZvBDSCo01ehkAQC3H75g9zlJW7taRINJWS4mKnCsBvqQuEJ51aAgyzkDIUjBorD59dkvhl",
+    "domain": ".wal-mart.com",
+    "path": "/",
+    "expires": 1781290197.523584,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  }
+]

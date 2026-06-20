@@ -29,6 +29,8 @@ _PX_CHALLENGE_SIGNALS: list[str] = [
 async def _wait_for_button_enabled(page: Page, timeout: int = PX_EVALUATION_TIMEOUT) -> bool:
     deadline = asyncio.get_event_loop().time() + timeout / 1000
     while asyncio.get_event_loop().time() < deadline:
+        if "/login" not in page.url:
+            return True
         try:
             el = await page.query_selector(LOGIN_BTN)
             if el and await el.get_attribute("disabled") is None:
@@ -263,6 +265,10 @@ async def handle_px_challenge(page: Page) -> bool:
     """Detect and attempt to solve the PX Press & Hold challenge."""
     log("INFO", Tags.PX, "Waiting for PX evaluation ...")
 
+    if "/login" not in page.url:
+        log("INFO", Tags.PX, "Already past login page, skipping PX.")
+        return True
+
     if await _wait_for_button_enabled(page):
         log("SUCCESS", Tags.PX, "PX passed without challenge.")
         return True
@@ -278,6 +284,10 @@ async def handle_px_challenge(page: Page) -> bool:
     await asyncio.sleep(1)
 
     for attempt in range(1, 4):
+        if "/login" not in page.url:
+            log("INFO", Tags.PX, "URL changed away from login during PX, skipping.")
+            return True
+
         log("INFO", Tags.PX, f"Hold attempt {attempt}/3 ...")
 
         target = await _find_hold_target(page)
